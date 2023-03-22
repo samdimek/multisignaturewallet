@@ -24,7 +24,7 @@ pragma solidity ^0.8.17; // writing solidity for compiler version 0.8.17 and abo
     Transaction[] public transactions; // a dynamic array of txts to store all transactions that have been executed
     mapping (uint => mapping (address => bool)) public approved; // 
 
-    modifier onlyOwer () {
+    modifier onlyOwner () {
         require(isOwner[msg.sender], "not owner"); // requires msg.sender is owner otherwise prints error msg "ot owner"
         _; 
     }
@@ -53,7 +53,7 @@ pragma solidity ^0.8.17; // writing solidity for compiler version 0.8.17 and abo
         ); // checks if _required is greater than zero & less than or equal to the number of owners and prints error msg if either is false
 
         // for loop to save owners to the state variable 
-        for (uint256 i; i < _owners.length; i++; ) {
+        for (uint256 i; i < _owners.length; i++) {
             address owner = _owners[i];
             require(owner != address(0), "Invalid owner"); // check owner is not of address zero, if true print error msg 
             require(!isOwner[owner], "address is owner"); // checks whether owner is in isowner variable, if true, prints an error msg
@@ -70,7 +70,7 @@ pragma solidity ^0.8.17; // writing solidity for compiler version 0.8.17 and abo
         emit Deposit(msg.sender, msg.value); // enables the wallet to receive some ether
     }
 
-    function submit(address _to, uint256 _value, bytes calldata _data)  returns () 
+    function submit(address _to, uint256 _value, bytes calldata _data)
         external
         onlyOwner
     {
@@ -80,7 +80,7 @@ pragma solidity ^0.8.17; // writing solidity for compiler version 0.8.17 and abo
             data: _data,
             executed: false
         }));
-        emit Submit(transactios.length -1); // 1st txt is stored at zero, 2nd txt at 1
+        emit Submit(transactions.length -1); // 1st txt is stored at zero, 2nd txt at 1
     }
 
     function approve(uint256 _txId) 
@@ -91,10 +91,10 @@ pragma solidity ^0.8.17; // writing solidity for compiler version 0.8.17 and abo
         notExecuted(_txId)
     {
         approved[_txId][msg.sender] = true; //stores the approval of the txt to mapping
-        emit Approved(msg.sender, _txId);
+        emit Approve(msg.sender, _txId);
     }
 
-    function _getApprovalCout(uint256 _txId) 
+    function _getApprovalCount(uint256 _txId) 
         private
         view
         returns (uint count) // initializing count
@@ -112,7 +112,7 @@ pragma solidity ^0.8.17; // writing solidity for compiler version 0.8.17 and abo
         notExecuted(_txId) 
     {
         require(_getApprovalCount(_txId) >= required, "approval < required"); // checks if approval count is greater than or equal to required if not throws an error msg "approvals < required"
-        Transaction storage transaction = transaction[_txId];
+        Transaction storage transaction = transactions[_txId];
 
         transaction.executed = true;
 
@@ -127,7 +127,8 @@ pragma solidity ^0.8.17; // writing solidity for compiler version 0.8.17 and abo
     function revoke(uint256 _txId) 
         external
         onlyOwner
-        txId  returns () 
+        txExists(_txId)
+        notExecuted(_txId)
     {
         require(approved[_txId][msg.sender], "Txt not approved"); // checks whether the txt of _txId is approved by msg.sender
         approved[_txId][msg.sender] = false; //set approval of txt of _txId to false
