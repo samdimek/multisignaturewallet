@@ -78,7 +78,7 @@ describe("OurWallet", function () {
   it("should not allow double approval from a single owner", async function () {
     await ourWallet.submit(addr1.address, 100, "0x");
     await ourWallet.connect(owner2).approve(0);
-    await expect(ourWallet.connect(owner2).approve(0)).to.be.revertedWith("Transaction already approved!");
+    await expect(ourWallet.connect(owner2).approve(0)).to.be.revertedWith("Txt already approved");
   });
 
   // Tests that execution of already executed transaction is not allowed.
