@@ -73,4 +73,38 @@ describe("OurWallet", function () {
     await ourWallet.connect(owner2).approve(0);
     await expect(ourWallet.connect(addr1).revoke(0)).to.be.revertedWith("not owner");
   });
+
+  // Tests that double approval from the same owner is not allowed.
+  it("should not allow double approval from a single owner", async function () {
+    await ourWallet.submit(addr1.address, 100, "0x");
+    await ourWallet.connect(owner2).approve(0);
+    await expect(ourWallet.connect(owner2).approve(0)).to.be.revertedWith("Transaction already approved!");
+  });
+
+  // Tests that execution of already executed transaction is not allowed.
+  it("should not allow execution of an already executed transaction", async function () {
+    await ourWallet.submit(addr1, 100, "0x");
+    await ourWallet.connect(owner2).approve(0);
+    await ourWallet.execute(0);
+    await expect(ourWallet.execute(0)).to.be.revertedWith("Transaction already executed!");
+  });
+
+  // Tests for gas optimization.
+  it("should optimize gas fees by using minimal approvals", async function () {
+    // Submitting transaction
+    await ourWallet.submit(addr1.address, 100, "0x");
+
+    // check gas fees for executing 2 approvals
+    const txt1 = await ourWallet.connect(owner2).approve(0);
+    const receipt1 = await txt.wait();
+    const gasCost1 = receipt1.gasUsed;
+
+    // check gas fees for executing 3 approvals
+    const txt2 = await ourWallet.connect(owner3).approve(0);
+    const receipt2 = await txt.wait();
+    const gasCost2 = receipt2.gasUsed;
+
+    // ansures gas fees on 2 approvals is lower than with 3 approvals
+    expect(gasCost1).to.be.lessThan(gasCost2);
+  });
 });
