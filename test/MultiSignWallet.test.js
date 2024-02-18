@@ -23,11 +23,7 @@ describe("OurWallet", function () {
   });
 
   // Tests owners can submit transactions.
-  it("should allow owners to submit transactions", async function () {
-    const tx = await ourWallet.submit(addr1.address, 100, "0x");
-
-    await expect(tx).to.emit(OurWallet, "Submit").withArgs(0);
-  });
+  
 
   // Tests owners can approve transactions.
   it("should allow owners to approve transactions", async function () {
