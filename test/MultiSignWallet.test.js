@@ -12,7 +12,15 @@ describe("OurWallet", function () {
   let addr3;
 
   // Before each test, deploy a new instance of the contract && set up owners.
-  
+  beforeEach(async function () {
+    [owner1, owner2, owner3, addr1, addr2, addr3] = await ethers.getSigners();
+
+    const OurWalletFactory = await ethers.getContractFactory("OurWallet");
+    OurWallet = await OurWalletFactory.deploy([owner1.address, owner2.address, owner3.address], 2);
+    await OurWallet.deployed();
+
+    ourWallet = OurWallet.connect(owner1);
+  });
 
   // Tests owners can submit transactions.
   it("should allow owners to submit transactions", async function () {
